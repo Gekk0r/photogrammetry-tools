@@ -9,6 +9,7 @@ class DataNVM(object):
         self.points = dict()
         self.pointsAllData = dict()
         self.dataAll = dict()
+        self.points_img = dict()
 
         self.name = name
         self.path = path
@@ -22,6 +23,8 @@ class DataNVM(object):
         self.extract(lines)
 
     def extract(self, lines):
+        out = open("../exampleData/chart_points_aggregation_tsv.tsv", "w")
+        out.write("point_number" + "\t" + "number_images" + "\n")
         for index in range(self.index_tie + 1, len(lines) - 1):
             line = lines[index].strip().split(" ")
             self.pointsAllData[str(index - self.index_tie)] = {"id": str(index - self.index_tie),
@@ -29,6 +32,12 @@ class DataNVM(object):
                                                         "rgb": (line[3], line[4], line[5]), "num_imgs": line[6],
                                                         "list_images": []}
             self.points[str(index - self.index_tie)] = [int(line[6])]
+            out.write(str(index - self.index_tie) + "\t" + line[6] + "\n")
+            if line[6] in self.points_img:
+                self.points_img[line[6]][0] += 1
+            else:
+                self.points_img[line[6]] = [1]
+
             for tie in range(7, len(line), 4):
                 self.pointsAllData[str(index - self.index_tie)]["list_images"].append(line[tie])
                 name = self.extractName(int(line[tie]), lines)
@@ -45,22 +54,25 @@ class DataNVM(object):
                                             "point2D": [(line[tie + 2], line[tie + 3])]}
 
         data = json.dumps(self.points)
-        out = open("chart_points_aggregation.json", "w")
+        out = open("../exampleData/chart_points_aggregation.json", "w")
         out.write(data)
         data = json.dumps(self.data)
-        out = open("chart_img_aggregation.json", "w")
+        out = open("../exampleData/chart_img_aggregation.json", "w")
         out.write(data)
         data = json.dumps(self.dataAll)
-        out = open("chart_img.json", "w")
+        out = open("../exampleData/chart_img.json", "w")
         out.write(data)
         data = json.dumps(self.pointsAllData)
-        out = open("chart_points.json", "w")
+        out = open("../exampleData/chart_points.json", "w")
         out.write(data)
+        data = json.dumps(self.points_img)
+        out = open("../exampleData/points_img.json", "w")
+        out.write(data)
+
 
     def extractName(self, id, lines):
         name = lines[3 + id].strip().split(" ")[0]
         name = name.split("/")[-1]
-        print(name)
         return name
 
 
