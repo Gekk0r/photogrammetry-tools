@@ -60,6 +60,7 @@
 
 <body>
     <div id="chart_1" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+    <div id="chart_2" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
     <!--<div id="chart_2" style="min-width: 310px; height: 400px; margin: 0 auto"></div>-->
     <script src="http://d3js.org/d3.v3.min.js"></script>
     <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
@@ -158,14 +159,15 @@
     //            data.push({name: "PrimaryHeps_" + key ,data: json[key]});
     //        });
     //    });
-        d3.json("../exampleData/chart_img_aggregation.json", function(error, json) {
-            Object.keys(json).forEach(function(key) {
+        d3.json("../exampleData/chart_points_angle.json", function(error, json) {
+            Object.keys(json).sort().forEach(function(key) {
 //                console.log(label);
                 data.push({name: key , data: json[key]});
+
                 label.push(key)
             });
             drawHighCharts("chart_1", data, 'Tie points for image', false, label);
-    //        drawHighCharts("chart_2", data_average, 'Data Average', true);
+            drawHighCharts_2("chart_2", data, 'Data Average', true);
         });
 
         function drawHighCharts(div_id, dataset, title, average, labelName){
@@ -182,9 +184,10 @@
                     usePreAllocated: true
                 },
                 xAxis: {
-
+                    binsNumber:10
                 },
                 yAxis: {
+                    binsNumber:10,
                     allowDecimals: false,
                     title: {
                         text: 'Keypoints'
@@ -202,6 +205,33 @@
             });
 
         };
+        function drawHighCharts_2(div_id, dataset, title, average, labelName){
+            Highcharts.chart(div_id, {
+                chart: {
+                    type: 'column',
+                    zoomType: "xy",
+                },
+                xAxis: {
+
+                },
+                xAxis: {
+
+                },
+
+                plotOptions: {
+                    series: {
+                        animation: false
+                    }
+                },
+
+                series: [{
+
+                    data:  dataset,
+
+                }]
+            });
+        }
+
 
     </script>
 </body>
