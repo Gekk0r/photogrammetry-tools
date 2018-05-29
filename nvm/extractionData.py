@@ -155,8 +155,3 @@ class DataNVM(object):
                 self.pointAngle["%.2f" % max(angle)][0] += 1
             else:
                 self.pointAngle["%.2f" % max(angle)] = [1]
-
-# DataNVM("pippo", "/media/daniele/Data/TERNA/sparse/0/file_nvm.nvm",
-#         "/media/daniele/Data/TERNA/sparse/0/")
-# DataNVM("pippo", "../../static/users/fabio79/cartapesta/sparse/0/chigi.nvm",
-#         "../../static/users/fabio79/cartapesta/statistics/chigi/")
