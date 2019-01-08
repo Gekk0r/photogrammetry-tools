@@ -1,0 +1,7 @@
+venv/
+main_tests/
+*.bin
+*.pyc
+dataSources.xml
+dataSources.local.xml
+workspace.xml
