@@ -1,5 +1,11 @@
 venv/
-main_tests/
+*.tif*
+*.cpg
+*.dbf
+*.prj
+*.qpj
+*.shp
+*.shx
 *.bin
 *.pyc
 dataSources.xml
