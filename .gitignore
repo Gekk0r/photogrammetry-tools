@@ -1,4 +1,4 @@
-venv/
+venv/*
 *.tif*
 *.cpg
 *.dbf
@@ -11,3 +11,4 @@ venv/
 dataSources.xml
 dataSources.local.xml
 workspace.xml
+.idea/*
