@@ -13,7 +13,7 @@ class DataNVM(object):
         self.points = dict()
         self.pointsAllData = dict()
         self.dataAll = dict()
-        self.points_img = dict()
+        self.points_img = dict() #TODO check
         self.pointAngle = dict()
         self.calculateInterAngle = calculateInterAngle
 
@@ -69,7 +69,7 @@ class DataNVM(object):
             self.pointsAllData[str(index - self.index_tie)] = {"id": str(index - self.index_tie),
                                                                "point3D": (line[0], line[1], line[2]),
                                                                "rgb": (line[3], line[4], line[5]), "num_imgs": line[6],
-                                                               "list_images": []}
+                                                               "list_images": [], "id_features":[]}
             if self.outpath is not None:
                 out_2.write(line[0] + " " + line[1] + " " + line[2] + " " + line[6] + "\n")
                 out.write(str(index - self.index_tie) + "\t" + line[6] + "\n")
@@ -95,6 +95,8 @@ class DataNVM(object):
                     name = self.extractName(int(line[tie]), lines)
                     self.dataAll[line[tie]] = {"name": name, "id": [line[tie + 1]],
                                                "point2D": [(line[tie + 2], line[tie + 3])]}
+                self.pointsAllData[str(index - self.index_tie)]["id_features"].append(line[tie + 1])
+
                 if self.calculateInterAngle:
                     self.interAngle(self.pointsAllData[str(index - self.index_tie)]["id"],
                                     self.pointsAllData[str(index - self.index_tie)]["point3D"],
