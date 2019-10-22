@@ -3,6 +3,16 @@ import math
 import numpy as np
 from scipy.spatial.distance import pdist
 
+from argparse import ArgumentParser
+
+parser = ArgumentParser()
+
+parser.add_argument("-i", "--input_nvm", dest="input_nvm",
+                    help="input nvm file", metavar="")
+parser.add_argument("-o", "--output_folder", dest="output_folder",
+                    help="output folder", metavar="")
+
+args = parser.parse_args()
 
 class DataNVM(object):
 
@@ -170,3 +180,8 @@ class DataNVM(object):
 
 
 # pippo = DataNVM("pippo", "../exampleData/file_nvm.nvm")
+
+if args.input_nvm is None or args.output_folder is None:
+    print("check inputs!")
+else:
+    DataNVM("id", args.input_nvm, args.output_folder)
