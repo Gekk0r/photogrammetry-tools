@@ -11,8 +11,11 @@ parser.add_argument("-i", "--input_nvm", dest="input_nvm",
                     help="input nvm file", metavar="")
 parser.add_argument("-o", "--output_folder", dest="output_folder",
                     help="output folder", metavar="")
+parser.add_argument("-id", "--id", dest="id",
+                    help="id process", metavar="")
 
 args = parser.parse_args()
+
 
 class DataNVM(object):
 
@@ -23,7 +26,7 @@ class DataNVM(object):
         self.points = dict()
         self.pointsAllData = dict()
         self.dataAll = dict()
-        self.points_img = dict() #TODO check
+        self.points_img = dict()  # TODO check
         self.pointAngle = dict()
         self.calculateInterAngle = calculateInterAngle
 
@@ -79,7 +82,7 @@ class DataNVM(object):
             self.pointsAllData[str(index - self.index_tie)] = {"id": str(index - self.index_tie),
                                                                "point3D": (line[0], line[1], line[2]),
                                                                "rgb": (line[3], line[4], line[5]), "num_imgs": line[6],
-                                                               "list_images": [], "id_features":[]}
+                                                               "list_images": [], "id_features": []}
             if self.outpath is not None:
                 out_2.write(line[0] + " " + line[1] + " " + line[2] + " " + line[6] + "\n")
                 out.write(str(index - self.index_tie) + "\t" + line[6] + "\n")
@@ -173,6 +176,7 @@ class DataNVM(object):
                 self.pointAngle["%.2f" % max(angle)][0] += 1
             else:
                 self.pointAngle["%.2f" % max(angle)] = [1]
+
 
 # DataNVM("pippo", "/media/daniele/Data/TERNA/sparse/0/file_nvm.nvm",
 #         "/media/daniele/Data/TERNA/sparse/0/")
