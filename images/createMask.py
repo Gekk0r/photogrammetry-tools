@@ -1,9 +1,9 @@
 import numpy as np
 import scipy.spatial as sp
-from PIL import Image
+from PIL import Image, ImageDraw
 from scipy.spatial import Delaunay, ConvexHull
 import glob, os
-
+import skimage.draw as drw
 
 def in_hull(p, hull):
     """
@@ -20,17 +20,17 @@ def in_hull(p, hull):
 
     return hull.find_simplex(p) >= 0
 
+
 def create(input_imgs_dir):
     for infile in glob.glob(input_imgs_dir + "*.JPG"):
         file, ext = os.path.splitext(infile)
         im = Image.open(infile)
         width, height = im.size
-        pixels_image = im.load()
 
         # Creation of a new image (mask)
         newImg1 = Image.new('RGB', (width, height))
-        width -= 1
-        height -= 1
+        # width -= 1
+        # height -= 1
         pixels1 = newImg1.load()
 
         # Reading points to create mask
@@ -42,68 +42,48 @@ def create(input_imgs_dir):
                 line = line.strip().split(" ")
                 points.append((float(line[1]), float(line[2])))
 
-        hull = sp.Delaunay(np.array(points))
-        print(file, width, height)
-        for i in range(0, width):
-            if i == round(width / 4):
-                print("25%")
-            if i == round(width / 2):
-                print("50%")
-            if i == round(width / 2 + height / 4):
-                print("75%")
-            for j in range(0, height):
-                if in_hull((i, j), hull):
-                    pixels1[i, j] = pixels_image[i, j]
-                else:
-                    pixels1[i, j] = (0, 0, 0)
+        draw = True
+        if len(points) > 3:
+            hull = sp.ConvexHull(np.array(points))
+        else:
+            draw = False
 
-        print("saving.....")
-        newImg1.save(infile + ".png")
+        print(file, width, height)
+
+        # pixels_image = im.load()
+        # for i in range(0, width):
+        #     if i == round(width / 4):
+        #         print("25%")
+        #     if i == round(width / 2):
+        #         print("50%")
+        #     if i == round(width / 2 + height / 4):
+        #         print("75%")
+        #     for j in range(0, height):
+        #         if in_hull((i, j), hull):
+        #             pixels1[i, j] = pixels_image[i, j]
+        #         else:
+        #             pixels1[i, j] = (0, 0, 0)
+        # img_ = np.zeros((height, width), dtype=np.uint8)
+        # points = np.array(points)
+        # rr, cc = drw.polygon(points[0 : 4352 , :], points[:, 0: 3264])
+        # img_[rr, cc] = 1
+        #
+        # mask = drw.polygon2mask((height, width), points)
+
+        img = Image.new("RGB", (width, height), "#000000")
+        img1 = ImageDraw.Draw(img)
+
+        if(draw):
+            arr_lst = (hull.points[hull.vertices])
+            tup_lst = tuple(map(tuple, arr_lst))
+            img1.polygon(tup_lst, fill="#eeeeff", outline="blue")
+
+        # img.show()
+        print("saving.....", infile + ".png")
+
+        img.save(infile + ".png")
+
+
 #
 #
-create("../exampleData/venere/images/1/")
-#
-# im = Image.open("../exampleData/venere/images/1/IMG_0254.JPG")
-# width, height = im.size
-#
-# pixels_image = im.load()
-#
-# newImg1 = Image.new('RGB', (width, height))
-# width -= 1
-# height -= 1
-# pixels1 = newImg1.load()
-#
-# config = open("../exampleData/experiment/1IMG_0254.JPG.txt", "r")
-# lines = config.readlines()
-# points = []
-# for line in lines:
-#     if len(line) > 0:
-#         line = line.strip().split(" ")
-#         points.append((float(line[1]), float(line[2])))
-#
-# hull = sp.Delaunay(np.array(points))
-# # hull = sp.ConvexHull(np.array(points))
-# print(width, height)
-# for i in range(0, width):
-#     if i == round(width/4):
-#         print("25%")
-#     if i == round(width/2):
-#         print("50%")
-#     if i == round(width/2 + height/4):
-#         print("75%")
-#     for j in range(0, height):
-#         if in_hull((i, j), hull):
-#         # if magia(hull, float(i), float(j)):
-#             pixels1[i, j] = pixels_image[i, j]
-#         else:
-#             pixels1[i, j] = (0, 0, 0)
-#
-# print("saving.....")
-# newImg1.save("./img1.png")
-#
-# rgb_im = im.convert('RGB')
-# r, g, b = rgb_im.getpixel((1, 1))
-#
-# print(r, g, b)
-#
-# print(hull.points)
+create("../exampleData/chigi/1/")

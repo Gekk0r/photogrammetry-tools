@@ -20,6 +20,7 @@ class PointsNVM(object):
 
         self.cameraName = dict()
         self.cameraList = dict()
+        self.cameraListDel = dict()
 
         self.path = path
         self.outpath = outpath
@@ -44,21 +45,24 @@ class PointsNVM(object):
             self.cameraName[str(index - 3)] = cameraTMP[0]
 
     def extract(self, lines, mask=False):
+        file_points = open(self.outpath + "points3D.txt", 'w')
+        bbox = gm.BoundingBox()
+        min_vector = gm.Vector3D(-1.0956719208953014, -4.905698154914125, 4.458458960968821)
+        max_vector = gm.Vector3D(3.607671920895301, 2.5296981549141258, 9.929541039031179)
+        bbox.setFromCoord(min_vector, max_vector)
+
+        is_inside = True
+
         for id_point in range(1, self.num_tie):
             line = lines[self.index_tie + id_point].strip().split(" ")
             num_img = int(line[6])
+
             if mask:
                 ori = gm.Vector3D(float(line[0]), float(line[1]), float(line[2]))
-                bbox = gm.BoundingBox()
-                min_vector = gm.Vector3D(-1.247, -1.520, -1.656)
-                max_vector = gm.Vector3D(-0.102, 1.394, -.0423)
-                bbox.setFromCoord(min_vector, max_vector)
+                is_inside = bbox.contains(ori)
 
-                mask = bbox.contains(ori)
-            else:
-                mask = True
-
-            if mask:
+            if is_inside:
+                file_points.write(" ".join(line[0:4]) + "\n")
                 for shift in range(0, num_img):
                     index_camera = 7 + (shift * 4)
                     camera = self.cameraName[line[index_camera]]
@@ -71,8 +75,8 @@ class PointsNVM(object):
                         self.cameraList[camera].append((line[index_camera + 1], position))
 
         for camera in self.cameraList.keys():
-            file_out = open(self.outpath + camera + ".txt", 'w')
-            camera_name = camera.replace("/", '')
+            camera_name = camera.replace("1/", '')
+            file_out = open(self.outpath + camera_name + ".txt", 'w')
             for element in self.cameraList[camera]:
                 file_out.write(" ".join(element) + "\n")
 
@@ -83,4 +87,4 @@ else:
     if args.mask is None:
         PointsNVM(args.input_nvm, args.output_folder)
     else:
-        PointsNVM(args.input_nvm, args.output_folder, args.mask)
+        PointsNVM(args.input_nvm, args.output_folder, int(args.mask))

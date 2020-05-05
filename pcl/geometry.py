@@ -1,6 +1,64 @@
 import numpy as np
 
 
+def quattomatrix(x, y, z, w):
+    """
+    Transformation from quaternion to Matrix 4x4
+
+    Parameters:
+    x, y, z, w (float): Quaternion
+
+    Returns:
+    numpy array: matrix 4x4
+
+    """
+    destination = np.zeros((4, 1, 4))
+
+    destination[0][0] = 1.0 - 2.0 * y * y - 2.0 * z * z
+    destination[0][1] = 2.0 * x * y + 2.0 * z * w
+    destination[0][2] = 2.0 * x * z - 2.0 * y * w
+    destination[0][3] = 0.0
+
+    destination[1][0] = 2.0 * x * y - 2.0 * z * w
+    destination[1][1] = 1.0 - 2.0 * x * x - 2.0 * z * z
+    destination[1][2] = 2.0 * z * y + 2.0 * x * w
+    destination[1][3] = 0.0
+
+    destination[2][0] = 2.0 * x * z + 2.0 * y * w
+    destination[2][1] = 2.0 * z * y - 2.0 * x * w
+    destination[2][2] = 1.0 - 2.0 * x * x - 2.0 * y * y
+    destination[2][3] = 0.0
+
+    destination[3][0] = 0.0
+    destination[3][1] = 0.0
+    destination[3][2] = 0.0
+    destination[3][3] = 1.0
+
+    return destination
+
+
+def worldtoimage(point, flenght, center, imgsize, rotmatrix, distortion=False):
+    if distortion is True:
+        width = imgsize[0]
+        height = imgsize[1]
+        matrix = rotmatrix
+
+        tmp_0 = (matrix[0][0] * (point[0] - center[0]) + matrix[0][1] * (point[1] - center[1])
+               + matrix[0][2] * (point[2] - center[2]))
+        tmp_1 = (matrix[2][0] * (point[0] - center[0]) + matrix[2][1] * (point[1] - center[1])
+               + matrix[2][2] * (point[2] - center[2]))
+        sensorX = -flenght * tmp_0 / tmp_1
+
+        tmp_0 = (matrix[1][0] * (point[0] - center[0]) + matrix[1][1] * (point[1] - center[1])
+                 + matrix[1][2] * (point[2] - center[2]))
+        tmp_1 = (matrix[2][0] * (point[0] - center[0]) + matrix[2][1] * (point[1] - center[1])
+                 + matrix[2][2] * (point[2] - center[2]))
+
+        sensorY = -flenght * tmp_0 / tmp_1
+
+        return [sensorX, sensorY]
+
+
 class Vector3D:
     """Common base class for all Vector3"""
     x = 0
@@ -23,6 +81,20 @@ class Vector3D:
     def normalize(self):
         length = self.length()
         return Vector3D(self.x / length, self.y / length, self.z / length)
+
+    def distance(self, point):
+        dx = self.x - point.x
+        dy = self.y - point.y
+        dz = self.z - point.z
+
+        return float(np.sqrt(dx * dx + dy * dy + dz * dz))
+
+    def squaredDistance(self, point):
+        dx = self.x - point.x
+        dy = self.y - point.y
+        dz = self.z - point.z
+
+        return float(dx * dx + dy * dy + dz * dz)
 
     def invert(self):
         return Vector3D(-self.x, -self.y, -self.z)
@@ -124,49 +196,3 @@ class Ray:
             return False
 
         return True
-
-
-# ori = Vector3D(589827.799, 231380.010, 743.905)
-# cen = Vector3D(589661.930, 231374.010, 749.620)
-# size = Vector3D(178.040, 159.140, 70.000)
-# bbox = BoundingBox()
-#
-# a_top_left = Vector3D(cen.x - (size.x / 2), cen.y + (size.y / 2), cen.z + (size.z / 2))
-# a_bottom_left = Vector3D(cen.x - (size.x / 2), cen.y + (size.y / 2), cen.z - (size.z / 2))
-#
-# b_top_right = Vector3D(cen.x + (size.x / 2), cen.y + (size.y / 2), cen.z + (size.z / 2))
-# b_bottom_right = Vector3D(cen.x + (size.x / 2), cen.y + (size.y / 2), cen.z - (size.z / 2))
-#
-# c_top_left = Vector3D(cen.x - (size.x / 2), cen.y - (size.y / 2), cen.z + (size.z / 2))
-# c_bottom_left = Vector3D(cen.x - (size.x / 2), cen.y - (size.y / 2), cen.z - (size.z / 2))
-#
-# d_top_right = Vector3D(cen.x + (size.x / 2), cen.y - (size.y / 2), cen.z + (size.z / 2))
-# d_bottom_right = Vector3D(cen.x + (size.x / 2), cen.y - (size.y / 2), cen.z - (size.z / 2))
-#
-# bbox.extendTo(a_top_left)
-# bbox.extendTo(a_bottom_left)
-# bbox.extendTo(b_top_right)
-# bbox.extendTo(b_bottom_right)
-# bbox.extendTo(c_top_left)
-# bbox.extendTo(c_bottom_left)
-# bbox.extendTo(d_top_right)
-# bbox.extendTo(d_bottom_right)
-#
-# # test_a = Vector3D(589788.350, 231300.030, 710.365)
-# # test_b = Vector3D(589965.959, 231453.290, 760.795)
-#
-# test_a = Vector3D(-1.247, -1.520, -1.656)
-# test_b = Vector3D(-0.102, 1.394, -.0423)
-#
-#
-# # cen = Vector3D(1, 2, 1.5)
-# ori = Vector3D(1.874, 1.181, -9.677)
-# bbox.setFromCoord(test_a, test_b)
-# centerbbox = bbox.center()
-# # bbox.setFromCoord(d_top_right, a_bottom_left)
-# # b_bottom_right, c_top_left
-# print(c_top_left.x, c_top_left.y, c_top_left.z)
-#
-# a = Ray()
-# a.fromPoints(ori, bbox.center())
-# print(a.intersects(bbox), bbox.contains(ori), bbox.center().z, a.Direction.x)
